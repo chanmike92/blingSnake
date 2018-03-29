@@ -6,8 +6,8 @@ class Snake {
     this.turning = false;
     this.board = board;
 
-    const center = new Coord(Math.floor(board.dimensions/2), Math.floor(board.dimensions/2));
-    this.segments = [center];
+    this.center = new Coord(Math.floor(board.dimensions/2), Math.floor(board.dimensions/2));
+    this.segments = [this.center];
 
     this.growTurns = 0;
   }
@@ -60,6 +60,7 @@ class Snake {
       this.turning = false;
 
       if (this.eatApple()) {
+        this.board.ateApple();
         this.board.apple.replace();
       }
 
@@ -91,6 +92,10 @@ class Snake {
 
     length() {
       return this.segments.length;
+    }
+
+    reset() {
+      this.segments = [this.center];
     }
 }
 

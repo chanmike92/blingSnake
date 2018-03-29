@@ -4,17 +4,31 @@ const Board = require('./board.js');
 class View {
   constructor(el) {
     this.el = el;
-
+    this.time = 100;
     this.board = new Board(20);
-    this.setupGrid();
+    this.score = 0;
 
-    this.intervalId = window.setInterval(
-      this.step.bind(this),
-      View.STEP_MILLIS
-    );
-
-    window.addEventListener("keydown", this.handleKeyEvent.bind(this));
+    this.handleStart = this.handleStart.bind(this);
+    this.handleStart();
   }
+
+  handleStart() {
+      const start = (e) => {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          this.setupGrid();
+          this.board.snake.reset();
+          this.intervalId = window.setInterval(
+            this.step.bind(this),
+            this.time
+          );
+          // window.removeEventListener('keypress', start);
+          window.removeEventListener('keypress', start);
+          window.addEventListener("keydown", this.handleKeyEvent.bind(this));
+        }
+      };
+    window.addEventListener('keypress', start);
+    }
 
   handleKeyEvent(event) {
 
@@ -43,12 +57,34 @@ class View {
   step() {
     if (this.board.snake.length() > 0) {
       this.board.snake.move();
+      if (this.board.apples > (this.score / 50)) {
+        window.clearInterval(this.intervalId);
+        this.time = this.time * 0.95;
+        this.intervalId = window.setInterval(
+          this.step.bind(this),
+          this.time
+        );
+        this.score = this.board.apples * 50;
+
+      }
       this.render();
     } else {
-      alert("You lose!");
-      window.clearInterval(this.intervalId);
+      this.endGame();
+      // alert("You lose!");
+      // window.clearInterval(this.intervalId);
     }
   }
+
+  endGame() {
+    $b('figure').html('<div>You lose. Press Enter to play again</div>');
+    window.clearInterval(this.intervalId);
+    window.removeEventListener('keydown', this.handleKeyEvent.bind(this));
+    this.score = 0;
+    this.time = 100;
+    this.board.appleReset();
+    this.handleStart();
+  }
+
   //
   // render() {
   //   this.updateClasses(this.board.snake.segments, "snake");
@@ -68,6 +104,7 @@ class View {
 
   render() {
     $b("li").removeClass("snake");
+    $b(".score").html(`Score: ${this.score}`)
     this.board.snake.segments.forEach( segment => {
       let idx = (segment.y * this.board.dimensions) + segment.x;
 

@@ -1,5 +1,7 @@
 class Coord {
   constructor(x, y) {
+    this.startX = x;
+    this.startY = y;
     this.x = x;
     this.y = y;
   }
@@ -16,6 +18,10 @@ class Coord {
     return (this.x === (coords.x * -1)) && (this.y === (coords.y * -1));
   }
 
+  reset() {
+    this.x = this.startX;
+    this.y = this.startY;
+  }
 }
 
 module.exports = Coord;

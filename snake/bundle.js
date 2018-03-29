@@ -69,6 +69,8 @@
 
 class Coord {
   constructor(x, y) {
+    this.startX = x;
+    this.startY = y;
     this.x = x;
     this.y = y;
   }
@@ -85,6 +87,10 @@ class Coord {
     return (this.x === (coords.x * -1)) && (this.y === (coords.y * -1));
   }
 
+  reset() {
+    this.x = this.startX;
+    this.y = this.startY;
+  }
 }
 
 module.exports = Coord;
@@ -112,17 +118,31 @@ const Board = __webpack_require__(3);
 class View {
   constructor(el) {
     this.el = el;
-
+    this.time = 100;
     this.board = new Board(20);
-    this.setupGrid();
+    this.score = 0;
 
-    this.intervalId = window.setInterval(
-      this.step.bind(this),
-      View.STEP_MILLIS
-    );
-
-    window.addEventListener("keydown", this.handleKeyEvent.bind(this));
+    this.handleStart = this.handleStart.bind(this);
+    this.handleStart();
   }
+
+  handleStart() {
+      const start = (e) => {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          this.setupGrid();
+          this.board.snake.reset();
+          this.intervalId = window.setInterval(
+            this.step.bind(this),
+            this.time
+          );
+          // window.removeEventListener('keypress', start);
+          window.removeEventListener('keypress', start);
+          window.addEventListener("keydown", this.handleKeyEvent.bind(this));
+        }
+      };
+    window.addEventListener('keypress', start);
+    }
 
   handleKeyEvent(event) {
 
@@ -151,12 +171,34 @@ class View {
   step() {
     if (this.board.snake.length() > 0) {
       this.board.snake.move();
+      if (this.board.apples > (this.score / 50)) {
+        window.clearInterval(this.intervalId);
+        this.time = this.time * 0.95;
+        this.intervalId = window.setInterval(
+          this.step.bind(this),
+          this.time
+        );
+        this.score = this.board.apples * 50;
+
+      }
       this.render();
     } else {
-      alert("You lose!");
-      window.clearInterval(this.intervalId);
+      this.endGame();
+      // alert("You lose!");
+      // window.clearInterval(this.intervalId);
     }
   }
+
+  endGame() {
+    $b('figure').html('<div>You lose. Press Enter to play again</div>');
+    window.clearInterval(this.intervalId);
+    window.removeEventListener('keydown', this.handleKeyEvent.bind(this));
+    this.score = 0;
+    this.time = 100;
+    this.board.appleReset();
+    this.handleStart();
+  }
+
   //
   // render() {
   //   this.updateClasses(this.board.snake.segments, "snake");
@@ -176,6 +218,7 @@ class View {
 
   render() {
     $b("li").removeClass("snake");
+    $b(".score").html(`Score: ${this.score}`)
     this.board.snake.segments.forEach( segment => {
       let idx = (segment.y * this.board.dimensions) + segment.x;
 
@@ -216,6 +259,7 @@ class Board {
     this.dimensions = dimensions;
     this.snake = new Snake(this);
     this.apple = new Apple(this);
+    this.apples = 0;
   }
 
   static blankGrid(dimensions) {
@@ -249,6 +293,14 @@ class Board {
     return (coord.x >= 0) && (coord.x < this.dimensions) &&
       (coord.y >= 0) && (coord.y < this.dimensions);
   }
+
+  appleReset() {
+    this.apples = 0;
+  }
+
+  ateApple() {
+    this.apples++;
+  }
 }
 
 Board.BLANK_SYMBOL = ".";
@@ -268,8 +320,8 @@ class Snake {
     this.turning = false;
     this.board = board;
 
-    const center = new Coord(Math.floor(board.dimensions/2), Math.floor(board.dimensions/2));
-    this.segments = [center];
+    this.center = new Coord(Math.floor(board.dimensions/2), Math.floor(board.dimensions/2));
+    this.segments = [this.center];
 
     this.growTurns = 0;
   }
@@ -322,6 +374,7 @@ class Snake {
       this.turning = false;
 
       if (this.eatApple()) {
+        this.board.ateApple();
         this.board.apple.replace();
       }
 
@@ -353,6 +406,10 @@ class Snake {
 
     length() {
       return this.segments.length;
+    }
+
+    reset() {
+      this.segments = [this.center];
     }
 }
 

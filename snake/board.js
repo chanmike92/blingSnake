@@ -7,6 +7,7 @@ class Board {
     this.dimensions = dimensions;
     this.snake = new Snake(this);
     this.apple = new Apple(this);
+    this.apples = 0;
   }
 
   static blankGrid(dimensions) {
@@ -39,6 +40,14 @@ class Board {
   validPosition(coord) {
     return (coord.x >= 0) && (coord.x < this.dimensions) &&
       (coord.y >= 0) && (coord.y < this.dimensions);
+  }
+
+  appleReset() {
+    this.apples = 0;
+  }
+
+  ateApple() {
+    this.apples++;
   }
 }
 
