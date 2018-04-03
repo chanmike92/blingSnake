@@ -9,7 +9,7 @@ Live: https://mikechan.me/blingSnake
 
 # Bling
 
-To learn more about Bling, checkout my repo: https://www.github.com/chanmike92/bling
+To learn more about Bling, checkout my repo: https://www.github.com/chanmike92/bling  
 
 # How to play:
 
