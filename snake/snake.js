@@ -100,10 +100,10 @@ class Snake {
 }
 
 Snake.DIRECTIONS = {
-  "N": new Coord(0, -1),
-  "E": new Coord(1, 0),
-  "S": new Coord(0, 1),
-  "W": new Coord(-1, 0)
+  "N": new Coord(-1, 0),
+  "E": new Coord(0, 1),
+  "S": new Coord(1, 0),
+  "W": new Coord(0, -1)
 };
 
 Snake.SYMBOL = "S";

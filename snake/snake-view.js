@@ -76,7 +76,7 @@ class View {
   }
 
   endGame() {
-    $b('figure').html('<div>You lose. Press Enter to play again</div>');
+    $b('figure').html('<h4>You lose. Press Enter to play again</h4>');
     window.clearInterval(this.intervalId);
     window.removeEventListener('keydown', this.handleKeyEvent.bind(this));
     this.score = 0;

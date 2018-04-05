@@ -44,6 +44,11 @@
 /******/ 		}
 /******/ 	};
 /******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -59,12 +64,119 @@
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "/snake/";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = "./snake/main.js");
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ "./snake/apple.js":
+/*!************************!*\
+  !*** ./snake/apple.js ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+const Coord = __webpack_require__(/*! ./coord */ "./snake/coord.js");
+
+class Apple {
+  constructor(board) {
+    this.board = board;
+    this.replace();
+  }
+
+  replace() {
+    let x = Math.floor(Math.random() * this.board.dimensions);
+    let y = Math.floor(Math.random() * this.board.dimensions);
+
+    while (this.board.snake.isOccupying([x, y])) {
+      x = Math.floor(Math.random() * this.board.dimensions);
+      y = Math.floor(Math.random() * this.board.dimensions);
+    }
+
+    this.position = new Coord(x, y);
+  }
+
+}
+
+module.exports = Apple;
+
+
+/***/ }),
+
+/***/ "./snake/board.js":
+/*!************************!*\
+  !*** ./snake/board.js ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+const Snake = __webpack_require__(/*! ./snake */ "./snake/snake.js");
+const Apple = __webpack_require__(/*! ./apple */ "./snake/apple.js");
+
+
+class Board {
+  constructor(dimensions) {
+    this.dimensions = dimensions;
+    this.snake = new Snake(this);
+    this.apple = new Apple(this);
+    this.apples = 0;
+  }
+
+  static blankGrid(dimensions) {
+    const grid = [];
+
+    for (let i = 0; i < dimensions; i++) {
+      const row = [];
+      for (let j = 0; j < dimensions; j++) {
+        row.push(Board.BLANK_SYMBOL);
+      }
+      grid.push(row);
+    }
+
+    return grid;
+  }
+
+  render() {
+    const grid = Board.blankGrid(this.dimensions);
+
+    this.snake.segments.forEach( segment => {
+      grid[segment.x][segment.y] = Snake.SYMBOL;
+    });
+
+    grid[this.apple.position.x][this.apple.position.y] = Apple.SYMBOL;
+
+    const rowStrs = [];
+    grid.map( row => row.join("") ).join("\n");
+  }
+
+  validPosition(coord) {
+    return (coord.x >= 0) && (coord.x < this.dimensions) &&
+      (coord.y >= 0) && (coord.y < this.dimensions);
+  }
+
+  appleReset() {
+    this.apples = 0;
+  }
+
+  ateApple() {
+    this.apples++;
+  }
+}
+
+Board.BLANK_SYMBOL = ".";
+
+module.exports = Board;
+
+
+/***/ }),
+
+/***/ "./snake/coord.js":
+/*!************************!*\
+  !*** ./snake/coord.js ***!
+  \************************/
+/*! no static exports found */
 /***/ (function(module, exports) {
 
 class Coord {
@@ -97,10 +209,15 @@ module.exports = Coord;
 
 
 /***/ }),
-/* 1 */
+
+/***/ "./snake/main.js":
+/*!***********************!*\
+  !*** ./snake/main.js ***!
+  \***********************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-const SnakeView = __webpack_require__(2);
+const SnakeView = __webpack_require__(/*! ./snake-view */ "./snake/snake-view.js");
 
 $b(function () {
   const rootEl = $b('.snake-game');
@@ -109,10 +226,15 @@ $b(function () {
 
 
 /***/ }),
-/* 2 */
+
+/***/ "./snake/snake-view.js":
+/*!*****************************!*\
+  !*** ./snake/snake-view.js ***!
+  \*****************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Board = __webpack_require__(3);
+const Board = __webpack_require__(/*! ./board.js */ "./snake/board.js");
 
 
 class View {
@@ -190,7 +312,7 @@ class View {
   }
 
   endGame() {
-    $b('figure').html('<div>You lose. Press Enter to play again</div>');
+    $b('figure').html('<h4>You lose. Press Enter to play again</h4>');
     window.clearInterval(this.intervalId);
     window.removeEventListener('keydown', this.handleKeyEvent.bind(this));
     this.score = 0;
@@ -247,72 +369,15 @@ module.exports = View;
 
 
 /***/ }),
-/* 3 */
+
+/***/ "./snake/snake.js":
+/*!************************!*\
+  !*** ./snake/snake.js ***!
+  \************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Snake = __webpack_require__(4);
-const Apple = __webpack_require__(5);
-
-
-class Board {
-  constructor(dimensions) {
-    this.dimensions = dimensions;
-    this.snake = new Snake(this);
-    this.apple = new Apple(this);
-    this.apples = 0;
-  }
-
-  static blankGrid(dimensions) {
-    const grid = [];
-
-    for (let i = 0; i < dimensions; i++) {
-      const row = [];
-      for (let j = 0; j < dimensions; j++) {
-        row.push(Board.BLANK_SYMBOL);
-      }
-      grid.push(row);
-    }
-
-    return grid;
-  }
-
-  render() {
-    const grid = Board.blankGrid(this.dimensions);
-
-    this.snake.segments.forEach( segment => {
-      grid[segment.x][segment.y] = Snake.SYMBOL;
-    });
-
-    grid[this.apple.position.x][this.apple.position.y] = Apple.SYMBOL;
-
-    const rowStrs = [];
-    grid.map( row => row.join("") ).join("\n");
-  }
-
-  validPosition(coord) {
-    return (coord.x >= 0) && (coord.x < this.dimensions) &&
-      (coord.y >= 0) && (coord.y < this.dimensions);
-  }
-
-  appleReset() {
-    this.apples = 0;
-  }
-
-  ateApple() {
-    this.apples++;
-  }
-}
-
-Board.BLANK_SYMBOL = ".";
-
-module.exports = Board;
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const Coord = __webpack_require__(0);
+const Coord = __webpack_require__(/*! ./coord */ "./snake/coord.js");
 
 class Snake {
   constructor(board) {
@@ -414,10 +479,10 @@ class Snake {
 }
 
 Snake.DIRECTIONS = {
-  "N": new Coord(0, -1),
-  "E": new Coord(1, 0),
-  "S": new Coord(0, 1),
-  "W": new Coord(-1, 0)
+  "N": new Coord(-1, 0),
+  "E": new Coord(0, 1),
+  "S": new Coord(1, 0),
+  "W": new Coord(0, -1)
 };
 
 Snake.SYMBOL = "S";
@@ -426,35 +491,7 @@ Snake.GROW_TURNS = 2;
 module.exports = Snake;
 
 
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const Coord = __webpack_require__(0);
-
-class Apple {
-  constructor(board) {
-    this.board = board;
-    this.replace();
-  }
-
-  replace() {
-    let x = Math.floor(Math.random() * this.board.dimensions);
-    let y = Math.floor(Math.random() * this.board.dimensions);
-
-    while (this.board.snake.isOccupying([x, y])) {
-      x = Math.floor(Math.random() * this.board.dimensions);
-      y = Math.floor(Math.random() * this.board.dimensions);
-    }
-
-    this.position = new Coord(x, y);
-  }
-
-}
-
-module.exports = Apple;
-
-
 /***/ })
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=bundle.js.map
