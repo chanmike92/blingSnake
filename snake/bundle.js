@@ -312,7 +312,7 @@ class View {
   }
 
   endGame() {
-    $b('figure').html('<h4>You lose. Press Enter to play again</h4>');
+    $b('figure').html("<h1>Instructions<h4>Use DIRECTION KEYS to move and gather 'em apples!</h4></h1><div>You lose. Press Enter to play again</div>");
     window.clearInterval(this.intervalId);
     window.removeEventListener('keydown', this.handleKeyEvent.bind(this));
     this.score = 0;
@@ -479,10 +479,10 @@ class Snake {
 }
 
 Snake.DIRECTIONS = {
-  "N": new Coord(-1, 0),
-  "E": new Coord(0, 1),
-  "S": new Coord(1, 0),
-  "W": new Coord(0, -1)
+  "N": new Coord(0, -1),
+  "E": new Coord(1, 0),
+  "S": new Coord(0, 1),
+  "W": new Coord(-1, 0)
 };
 
 Snake.SYMBOL = "S";

@@ -135,15 +135,16 @@ a {
 .aligned {
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: center;
   margin: 0 auto;
 }
 
 .instructions {
-  position: absolute;
+  /* position: absolute;
   top: 200px;
   left: 60px;
   font-size: 20px;
   color: navy;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', sans-serif; */
 }
